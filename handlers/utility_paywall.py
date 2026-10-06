@@ -20,7 +20,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
 from database import db
-from selar import selar
+from paystack import paystack
 from config import EMOJI_COLORS, UTILITY_SUB_FEE_GHS, UTILITY_SUB_DAYS, UTILITY_FREE_USES
 from manual_payments import request_review
 from utils import safe_edit_message
@@ -136,7 +136,7 @@ async def handle_payment_initiation(update: Update, context: ContextTypes.DEFAUL
     clone_id = _clone_id(context)
     price = await db.get_clone_price(clone_id, "utility_sub_fee")
 
-    payment_result = selar.initialize_payment(
+    payment_result = paystack.initialize_payment(
         email,
         int(price * 100),  # GHS -> pesewas
         user_id,
@@ -167,7 +167,7 @@ async def handle_payment_initiation(update: Update, context: ContextTypes.DEFAUL
         ])
         await safe_edit_message(query, text, reply_markup=keyboard, parse_mode="Markdown")
     else:
-        logger.error(f"[v0] Selar payment init failed for utility subscription, user {user_id}. Check SELAR_WEBHOOK_SECRET.")
+        logger.error(f"[v0] Selar payment init failed for utility subscription, user {user_id}. Check PAYSTACK_SECRET_KEY.")
         await query.answer("Failed to initialize payment. Please try again.", show_alert=True)
 
 

@@ -7,7 +7,7 @@ from database import db
 import flow_state
 from keyboards import keyboard_gen
 from formatter import AnimeFormatter
-from selar import selar
+from paystack import paystack
 from config import (
     EMOJI_COLORS, CLONE_BOT_FEE_GHS, CLONE_BOT_REAL_ENABLED, PUBLIC_BASE_URL,
     CLONE_MONETIZATION_FEE_GHS, CLONE_MONETIZATION_DAYS, PRICE_REGISTRY, ADMIN_ID,
@@ -138,7 +138,7 @@ async def handle_monetization_activate(update: Update, context: ContextTypes.DEF
         return
 
     email = f"user_{user_id}@animebot.com"
-    payment_result = selar.initialize_payment(
+    payment_result = paystack.initialize_payment(
         email,
         CLONE_MONETIZATION_FEE_GHS * 100,  # GHS -> pesewas
         user_id,
@@ -486,8 +486,8 @@ async def handle_payment_initiation(update: Update, context: ContextTypes.DEFAUL
     user_id = update.effective_user.id
     email = f"user_{user_id}@animebot.com"  # Fallback email
 
-    if query.data == "selar_checkout":
-        payment_result = selar.initialize_payment(
+    if query.data == "paystack_checkout":
+        payment_result = paystack.initialize_payment(
             email,
             CLONE_BOT_FEE_GHS * 100,  # Convert GHS to pesewas
             user_id,

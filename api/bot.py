@@ -502,7 +502,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     parse_mode="Markdown"
                 )
 
-        elif callback_data == "selar_checkout":
+        elif callback_data == "paystack_checkout":
             await clone_bot.handle_payment_initiation(update, context)
 
         elif callback_data == "clone_paid":
@@ -518,9 +518,9 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await clone_bot.handle_webhook_overwrite_confirmation(update, context)
 
         # Subscription/AI
-        elif callback_data == "pay_selar_ai":
+        elif callback_data == "pay_paystack_ai":
             from handlers import subscription
-            await subscription.handle_pay_selar_ai(update, context)
+            await subscription.handle_pay_paystack_ai(update, context)
         
         # Admin panel
         elif callback_data == "admin_panel":
@@ -664,7 +664,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.answer(f"Alert for {coin} removed")
             await superbot_handler.show_crypto_alerts(update, context)
 
-        # ═══════════════════════════════════════════════════════════
+        # ═══════════════════════════════════════════════════════��═══
         # SUPERBOT ROUTING
         # ═══════════════════════════════════════════════════════════
         elif callback_data == "show_premium_tiers":

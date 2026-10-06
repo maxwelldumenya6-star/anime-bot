@@ -8,7 +8,7 @@ from database import db, get_pool
 import flow_state
 from keyboards import keyboard_gen
 from config import EMOJI_COLORS
-from selar import selar
+from paystack import paystack
 from utils import is_owner
 from utils import safe_edit_message
 
@@ -44,7 +44,7 @@ async def handle_subscribe_ai(update: Update, context: ContextTypes.DEFAULT_TYPE
     price = await db.get_clone_price(_clone_id(context), "ai_subscription")
 
     keyboard = [
-        [InlineKeyboardButton(f"📲 Pay with Selar ({price:g} GHS/month)", callback_data="pay_selar_ai")],
+        [InlineKeyboardButton(f"📲 Pay with Paystack ({price:g} GHS/month)", callback_data="pay_paystack_ai")],
         [InlineKeyboardButton("❌ Nah, I'm good", callback_data="main_menu")]
     ]
     
@@ -215,7 +215,7 @@ async def get_subscription_revenue() -> Dict:
         return {}
 
 
-async def handle_pay_selar_ai(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def handle_pay_paystack_ai(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle Selar payment for AI subscription"""
     query = update.callback_query
     user_id = update.effective_user.id
@@ -224,7 +224,7 @@ async def handle_pay_selar_ai(update: Update, context: ContextTypes.DEFAULT_TYPE
     price = await db.get_clone_price(clone_id, "ai_subscription")
 
     # Initialize Selar payment
-    payment_result = selar.initialize_payment(
+    payment_result = paystack.initialize_payment(
         email,
         int(price * 100),  # Convert GHS to pesewas
         user_id,

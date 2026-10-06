@@ -20,7 +20,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
 from database import db
-from selar import selar
+from paystack import paystack
 from modules import moderation_extra as modx
 from config import EMOJI_COLORS
 from manual_payments import request_review
@@ -44,7 +44,7 @@ async def handle_payment_initiation(update: Update, context: ContextTypes.DEFAUL
     amount_ghs = pay_button["amount_ghs"]
     email = f"user_{user.id}@animebot.com"
 
-    payment_result = selar.initialize_payment(
+    payment_result = paystack.initialize_payment(
         email,
         amount_ghs * 100,  # GHS -> pesewas
         user.id,

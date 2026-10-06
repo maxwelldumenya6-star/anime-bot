@@ -9,7 +9,7 @@ from config import EMOJI_COLORS
 from database import db
 import flow_state
 from modules import superbot_adapter
-from selar import selar
+from paystack import paystack
 from utils import is_owner
 from utils import safe_edit_message
 
@@ -93,7 +93,7 @@ async def upgrade_tier(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     email = f"user_{user_id}@animebot.com"
-    payment_result = selar.initialize_payment(
+    payment_result = paystack.initialize_payment(
         email,
         config["price"] * 100,  # GHS to pesewas
         user_id,
@@ -139,7 +139,7 @@ async def verify_tier_payment(update: Update, context: ContextTypes.DEFAULT_TYPE
         await query.answer("No pending payment found", show_alert=True)
         return
 
-    result = selar.verify_payment(reference)
+    result = paystack.verify_payment(reference)
 
     if result.get("status") == "success":
         await superbot_adapter.set_user_tier(user_id, tier)

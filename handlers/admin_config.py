@@ -6,10 +6,10 @@ Time-based settings, pricing, and feature toggles
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-from config import ADMIN_ID, EMOJI_COLORS, BOT_TOKEN, SELAR_WEBHOOK_SECRET, DATABASE_URL, PUBLIC_BASE_URL, LOG_GROUP_ID
+from config import ADMIN_ID, EMOJI_COLORS, BOT_TOKEN, PAYSTACK_SECRET_KEY, DATABASE_URL, PUBLIC_BASE_URL, LOG_GROUP_ID
 from modules import superbot_adapter, botstore_adapter
 from database import db
-from selar import selar
+from paystack import paystack
 from utils import safe_edit_message
 
 def _clone_id(context) -> int:
@@ -243,13 +243,13 @@ async def cmd_envcheck(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"BOT_TOKEN: {mask(BOT_TOKEN if BOT_TOKEN != 'your_token_here' else '')}",
         f"ADMIN_ID: {'✅ set (' + str(ADMIN_ID) + ')' if ADMIN_ID else '❌ NOT SET'}",
         f"DATABASE_URL: {mask(DATABASE_URL)}",
-        f"SELAR_WEBHOOK_SECRET: {mask(SELAR_WEBHOOK_SECRET)}",
-        f"SELAR_WEBHOOK_SECRET: {mask(SELAR_WEBHOOK_SECRET)}",
+        f"PAYSTACK_SECRET_KEY: {mask(PAYSTACK_SECRET_KEY)}",
+        f"PAYSTACK_SECRET_KEY: {mask(PAYSTACK_SECRET_KEY)}",
         f"PUBLIC_BASE_URL: {'✅ ' + PUBLIC_BASE_URL if PUBLIC_BASE_URL else '❌ NOT SET'}",
         f"LOG_GROUP_ID: {'✅ set (' + str(LOG_GROUP_ID) + ')' if LOG_GROUP_ID else '❌ NOT SET (admin event logging disabled)'}",
     ]
     lines.append(
-        "\nIf SELAR_WEBHOOK_SECRET shows NOT SET here but you *do* see it in "
+        "\nIf PAYSTACK_SECRET_KEY shows NOT SET here but you *do* see it in "
         "Vercel → Settings → Environment Variables, the running deployment "
         "just hasn't picked it up yet — trigger a fresh redeploy (Vercel only "
         "injects vars set *before* the deploy starts)."
@@ -366,7 +366,7 @@ async def cmd_confirmpay(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     reference = context.args[0]
-    result = selar.verify_payment(reference)
+    result = paystack.verify_payment(reference)
 
     if result.get("status") != "success":
         await update.message.reply_text(

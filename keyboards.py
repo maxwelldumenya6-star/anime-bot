@@ -353,7 +353,7 @@ class KeyboardGenerator:
         """Keyboard for clone payment with Selar"""
         keyboard = [
             [
-                InlineKeyboardButton(f"{EMOJI_COLORS['clone']} Pay {amount_ghs} GHS", callback_data="selar_checkout")
+                InlineKeyboardButton(f"{EMOJI_COLORS['clone']} Pay {amount_ghs} GHS", callback_data="paystack_checkout")
             ],
             [
                 InlineKeyboardButton("ℹ️ What's Included", callback_data="clone_info"),

@@ -10,7 +10,7 @@ from keyboards import keyboard_gen
 from modules import botstore_adapter
 from database import db
 import flow_state
-from selar import selar
+from paystack import paystack
 from utils import is_owner
 from utils import safe_edit_message
 
@@ -336,7 +336,7 @@ async def handle_go_premium(update: Update, context: ContextTypes.DEFAULT_TYPE):
     email = f"user_{user_id}@animebot.com"
     price_ghs = botstore_adapter.ConfigCache.PREMIUM_PRICE_GHS
 
-    payment_result = selar.initialize_payment(
+    payment_result = paystack.initialize_payment(
         email,
         price_ghs * 100,  # Convert GHS to pesewas
         user_id,

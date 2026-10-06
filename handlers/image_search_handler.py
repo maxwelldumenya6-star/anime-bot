@@ -16,7 +16,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
 from database import db
-from selar import selar
+from paystack import paystack
 from modules.image_search import reverse_image_search
 from config import ADMIN_ID, IMAGE_SEARCH_YANDEX_FEE_GHS, IMAGE_SEARCH_YANDEX_DAYS
 from utils import is_owner, safe_edit_message
@@ -182,7 +182,7 @@ async def handle_pay_unlock(update: Update, context: ContextTypes.DEFAULT_TYPE):
     clone_id = _clone_id(context)
     price = await db.get_clone_price(clone_id, "image_search_unlock")
 
-    payment_result = selar.initialize_payment(
+    payment_result = paystack.initialize_payment(
         email,
         int(price * 100),
         user_id,
@@ -249,7 +249,7 @@ async def handle_yandex_subscribe(update: Update, context: ContextTypes.DEFAULT_
     clone_id = _clone_id(context)
     email = f"user_{user_id}@animebot.com"
 
-    payment_result = selar.initialize_payment(
+    payment_result = paystack.initialize_payment(
         email,
         int(IMAGE_SEARCH_YANDEX_FEE_GHS * 100),
         user_id,

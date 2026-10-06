@@ -36,7 +36,7 @@ ANILIST_ENDPOINT = "https://graphql.anilist.co"
 JIKAN_ENDPOINT = "https://api.jikan.moe/v4"
 
 # Payment Configuration
-SELAR_WEBHOOK_SECRET = os.getenv("SELAR_WEBHOOK_SECRET", "")
+PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
 CLONE_BOT_FEE_GHS = 50  # 50 GHS in pesewas = 5000
 
 # --- Shared AI Chat / Download paywall ---------------------------------------

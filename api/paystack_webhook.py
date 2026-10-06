@@ -1,4 +1,4 @@
-"""Authenticated, idempotent Selar/Zapier sale webhook."""
+"""Authenticated, idempotent Paystack/Zapier sale webhook."""
 import asyncio
 import hashlib
 import json
@@ -6,7 +6,7 @@ import logging
 from http.server import BaseHTTPRequestHandler
 
 from database import db
-from selar import normalize_sale, product_config, valid_secret
+from paystack import normalize_transaction, valid_signature
 
 logger = logging.getLogger(__name__)
 
@@ -22,16 +22,15 @@ class handler(BaseHTTPRequestHandler):
         except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
             return self._respond(400, {"status": "error", "message": "Invalid JSON"})
 
-        query_secret = ""
-        if not valid_secret({k.lower(): v for k, v in self.headers.items()}, query_secret):
+        if not valid_signature(raw, self.headers.get("X-Paystack-Signature", "")):
             return self._respond(401, {"status": "error", "message": "Unauthorized"})
 
-        sale = normalize_sale(payload)
+        sale = normalize_transaction(payload)
         if not sale["sale_id"]:
             sale["sale_id"] = "payload-" + hashlib.sha256(raw).hexdigest()
-        mapping = product_config(sale["product_id"], sale["product_name"])
-        if not mapping:
-            return self._respond(422, {"status": "error", "message": "Unmapped Selar product"})
+        mapping = {"type": sale.get("metadata", {}).get("payment_type", "bot_clone")}
+        if mapping["type"] not in {"bot_clone", "ai_subscription", "utility_subscription", "image_search_unlock", "premium_group", "clone_monetization"}:
+            return self._respond(422, {"status": "error", "message": "Unsupported Paystack payment type"})
         try:
             user_id = int(str(sale["telegram_user_id"]).strip())
             if user_id <= 0:
@@ -45,7 +44,7 @@ class handler(BaseHTTPRequestHandler):
             asyncio.run(self._grant(user_id, sale, mapping["type"]))
             return self._respond(200, {"status": "processed"})
         except Exception:
-            logger.exception("[v0] Selar sale processing failed: %s", sale["sale_id"])
+            logger.exception("[v0] Paystack sale processing failed: %s", sale["sale_id"])
             return self._respond(500, {"status": "error", "message": "Processing failed"})
 
     async def _grant(self, user_id: int, sale: dict, entitlement: str):
@@ -73,4 +72,4 @@ class handler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(body).encode())
 
     def log_message(self, fmt, *args):
-        logger.debug("[v0] Selar webhook: " + fmt, *args)
+        logger.debug("[v0] Paystack webhook: " + fmt, *args)

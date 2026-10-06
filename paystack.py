@@ -70,13 +70,10 @@ def normalize_transaction(payload: Dict[str, Any]) -> Dict[str, Any]:
     if isinstance(metadata, str):
         try: metadata = json.loads(metadata)
         except json.JSONDecodeError: metadata = {}
-    return {"reference": str(data.get("reference") or "").strip(), "status": data.get("status"), "amount": data.get("amount"), "currency": data.get("currency"), "metadata": metadata, "raw": data}
+    return {"reference": str(data.get("reference") or "").strip(), "sale_id": str(data.get("reference") or "").strip(), "status": data.get("status"), "amount": data.get("amount"), "currency": data.get("currency"), "metadata": metadata, "telegram_user_id": metadata.get("user_id"), "product_id": metadata.get("payment_type"), "product_name": metadata.get("payment_type"), "clone_id": metadata.get("clone_id"), "raw": data}
 
 
 __all__ = ["paystack", "valid_signature", "normalize_transaction"]
-
-# Backwards-compatible internal name for callers migrated in stages.
-selar = paystack
 
 def valid_secret(headers: Dict[str, str], query_secret: str = "") -> bool:
     return valid_signature(b"", headers.get("x-paystack-signature") or query_secret)
