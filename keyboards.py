@@ -34,18 +34,10 @@ class KeyboardGenerator:
         keyboard = [
             [
                 InlineKeyboardButton("🤖 AI Chat", callback_data="tools_ai_info"),
-                InlineKeyboardButton("⬇️ Download", callback_data="tools_download_info")
-            ],
-            [
-                InlineKeyboardButton("🔍 Reverse Image Search", callback_data="tools_imgsearch_info")
-            ],
-            [
-                InlineKeyboardButton("🎬 Anime", callback_data="m_anime"),
                 InlineKeyboardButton("🛡️ Group Tools", callback_data="m_grouptools")
             ],
             [
-                InlineKeyboardButton("🧰 Tools", callback_data="m_tools"),
-                InlineKeyboardButton("🏪 BotStore", callback_data="botstore_home")
+                InlineKeyboardButton("🧰 Tools", callback_data="m_tools")
             ],
         ]
 
@@ -167,10 +159,7 @@ class KeyboardGenerator:
             ],
             [
                 InlineKeyboardButton("📰 News", callback_data="tools_news_info"),
-                InlineKeyboardButton("⬇️ Download", callback_data="tools_download_info")
-            ],
-            [
-                InlineKeyboardButton("🔍 Reverse Image Search", callback_data="tools_imgsearch_info")
+                InlineKeyboardButton("🌐 Language", callback_data="tools_language_info")
             ],
             [
                 InlineKeyboardButton("🌐 Language", callback_data="tools_language_info")
@@ -589,15 +578,6 @@ class KeyboardGenerator:
         ]
         return InlineKeyboardMarkup(keyboard)
     
-    @staticmethod
-    def botstore_premium_verify_keyboard() -> InlineKeyboardMarkup:
-        """Keyboard for verifying BotStore premium payment"""
-        keyboard = [
-            [InlineKeyboardButton("✅ I've Paid — Verify", callback_data="verify_botstore_premium")],
-            [InlineKeyboardButton("❌ Cancel", callback_data="botstore_home")]
-        ]
-        return InlineKeyboardMarkup(keyboard)
-
     @staticmethod
     def clone_verify_keyboard() -> InlineKeyboardMarkup:
         """Keyboard for verifying clone payment"""

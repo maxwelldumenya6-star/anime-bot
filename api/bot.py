@@ -18,20 +18,18 @@ WEBHOOK_SECRET = os.getenv("TELEGRAM_WEBHOOK_SECRET", "")
 from database import db
 import flow_state
 from keyboards import keyboard_gen
-from handlers import discover, search, submit, admin_panel, clone_bot, admin_config, admin_remote
-from handlers import botstore_handler, superbot_handler, feature_handlers, external_handler, ai_handler, games_handler, bot_manager_handler
+from handlers import admin_panel, clone_bot, admin_config, admin_remote
+from handlers import superbot_handler, feature_handlers, external_handler, ai_handler, games_handler, bot_manager_handler
 from handlers import moderation
 from handlers import autopost_handler, broadcast_handler
 from handlers import ads_marketplace_handler
 from handlers import admin_tools
 from handlers import utility_paywall
-from handlers import image_search_handler
 from handlers import welcome_pay
 from handlers import link_buttons
 from handlers import language_handler
 from handlers import premium_group_handler
 from i18n import t
-from formatter import AnimeFormatter
 from modules import superbot_adapter
 from manual_payments import handle_admin_decision, handle_user_verification
 from utils import escape_markdown_v1 as esc_md
@@ -202,13 +200,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif callback_data == "main_menu":
             await show_main_menu(update, context)
 
-        elif callback_data == "m_anime":
-            await safe_edit_message(query, 
-                "🎬 **Anime**\n\nDiscover, search, and submit anime.",
-                reply_markup=keyboard_gen.anime_menu(),
-                parse_mode="Markdown"
-            )
-
         elif callback_data == "m_grouptools":
             is_group = update.effective_chat.type in ("group", "supergroup")
             extra_rows = await link_buttons.get_link_button_rows(update.effective_chat.id) if is_group else None
@@ -312,31 +303,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode="Markdown"
             )
 
-        elif callback_data == "tools_download_info":
-            await external_handler.start_download_waiting(update, context)
-
-        elif callback_data == "tools_imgsearch_info":
-            await safe_edit_message(
-                query,
-                "🔍 **Reverse Image Search**\n\nJust send a photo — no command needed. "
-                "You'll see match previews right away; the first source-link reveal is free, "
-                "then it's GHS 10 per unlock.",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Back", callback_data="m_tools")]]),
-                parse_mode="Markdown"
-            )
-
-        elif callback_data == "imgsearch_free_unlock":
-            await image_search_handler.handle_free_unlock(update, context)
-
-        elif callback_data == "imgsearch_pay":
-            await image_search_handler.handle_pay_unlock(update, context)
-
-        elif callback_data == "imgsearch_yandex_subscribe":
-            await image_search_handler.handle_yandex_subscribe(update, context)
-
-        elif callback_data == "imgsearch_yandex_cancel":
-            await image_search_handler.handle_yandex_cancel(update, context)
-
         elif callback_data.startswith("lang_set_"):
             await language_handler.language_callback(update, context)
 
@@ -358,12 +324,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif callback_data == "verify_utility_sub":
             await utility_paywall.handle_verify(update, context)
 
-        elif callback_data == "dl_format_audio":
-            await external_handler.handle_download_format_choice(update, context, "audio")
-
-        elif callback_data == "dl_format_video":
-            await external_handler.handle_download_format_choice(update, context, "video")
-
         elif callback_data == "cancel_waiting_mode":
             context.user_data.pop("awaiting_ai_message", None)
             context.user_data.pop("awaiting_download_link", None)
@@ -383,55 +343,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif callback_data == "noop":
             # No-op for page number display buttons
             pass
-
-        # Discover & pagination
-        elif callback_data.startswith("discover_"):
-            await discover.handle_discover(update, context)
-
-        elif callback_data.startswith("page_"):
-            await discover.handle_pagination(update, context)
-
-        elif callback_data.startswith("anime_details_"):
-            await discover.show_anime_details(update, context)
-
-        # Search
-        elif callback_data == "search_anime":
-            await search.start_search(update, context)
-
-        # Submission handling
-        elif callback_data == "submit_anime":
-            await submit.start_submission(update, context)
-
-        elif callback_data == "accept_submission_disclaimer":
-            await submit.accept_submission_disclaimer(update, context)
-
-        elif callback_data == "submit_anime_type":
-            await submit.handle_submission_type(update, context)
-
-        elif callback_data == "submit_movie_type":
-            await submit.handle_submission_type(update, context)
-
-        # Categories
-        elif callback_data == "view_categories":
-            await discover.handle_categories(update, context)
-
-        elif callback_data == "view_all_categories":
-            await discover.show_all_categories(update, context)
-
-        elif callback_data == "create_category":
-            await discover.start_create_category(update, context)
-
-        elif callback_data.startswith("category_detail_"):
-            await discover.show_category_detail(update, context)
-
-        elif callback_data.startswith("pick_category_"):
-            await discover.show_category_picker(update, context)
-
-        elif callback_data.startswith("add_to_category_"):
-            await discover.handle_add_to_category(update, context)
-
-        elif callback_data.startswith("category_"):
-            await discover.handle_categories(update, context)
 
         # Clone bot — not available from inside a clone's own Application (defense
         # in depth; the buttons that lead here are already hidden in clone_mode,
@@ -616,47 +527,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif callback_data == "add_admin_note":
             await query.answer("Feature not yet implemented", show_alert=True)
 
-        # ══════════════════════════════════════════════════════════���
-        # BOTSTORE ROUTING
-        # ═══════════════════════════════════════════════════════════
-        elif callback_data == "botstore_home":
-            await botstore_handler.show_botstore_home(update, context)
-
-        elif callback_data in ["botstore_bots", "botstore_groups", "botstore_channels"]:
-            await botstore_handler.show_category_listings(update, context)
-
-        elif callback_data == "botstore_submit":
-            await botstore_handler.handle_submit_listing(update, context)
-
-        elif callback_data == "botstore_tos_accept":
-            await botstore_handler.handle_tos_accept(update, context)
-
-        elif callback_data in ["list_bot", "list_group", "list_channel"]:
-            listing_type = callback_data.split("_")[1]
-            context.user_data["listing_type"] = listing_type
-            context.user_data["botstore_mode"] = "submit_type"
-            context.user_data["submit_step"] = 0
-            await flow_state.sync(context, user_id, _clone_id(context), flow="botstore")
-            await safe_edit_message(query, f"Nice! Now tell me the title of your {listing_type}:")
-
-        elif callback_data == "botstore_search":
-            await botstore_handler.handle_search_botstore(update, context)
-
-        elif callback_data.startswith("botstore_view_"):
-            await botstore_handler.show_listing_detail(update, context)
-
-        elif callback_data.startswith("botstore_rate_"):
-            await botstore_handler.handle_rating(update, context)
-
-        elif callback_data.startswith("rate_"):
-            await botstore_handler.submit_rating(update, context)
-
-        elif callback_data.startswith("cat_"):
-            await botstore_handler.finish_listing_submission(update, context)
-
-        elif callback_data == "go_premium":
-            await botstore_handler.handle_go_premium(update, context)
-
         elif callback_data.startswith("remove_alert_"):
             coin = callback_data.split("_", 2)[2]
             user_id_val = update.effective_user.id
@@ -664,7 +534,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.answer(f"Alert for {coin} removed")
             await superbot_handler.show_crypto_alerts(update, context)
 
-        # ═══════════════════════════════════════════════════════��═══
+        # ════════════════════════════════════════════════════��══��═══
         # SUPERBOT ROUTING
         # ═══════════════════════════════════════════════════════════
         elif callback_data == "show_premium_tiers":
@@ -900,11 +770,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # if context.user_data already has flow state (warm-instance path).
         await flow_state.hydrate(context, user_id, _clone_id(context))
 
-        # Download waiting mode: next plain-text message is treated as the link
-        if context.user_data.get("awaiting_download_link"):
-            await external_handler.handle_download_waiting_message(update, context)
-            return
-
         # Group Tools quick action (Warn/Mute/Ban tap-then-reply flow)
         if context.user_data.get("group_quick_action"):
             await moderation.handle_group_quick_action_message(update, context)
@@ -948,21 +813,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await broadcast_handler.handle_broadcast_joinlink_message(update, context)
             return
 
-        # Check for search mode
-        if context.user_data.get("mode") == "search":
-            await search.handle_search_message(update, context)
-            return
-
-        # Check for create_category mode
-        if context.user_data.get("mode") == "create_category":
-            await discover.handle_category_name_message(update, context)
-            return
-
-        # Check for submission steps
-        if context.user_data.get("submission_step"):
-            await submit.handle_submission_message(update, context)
-            return
-
         # Check for clone customization steps
         if context.user_data.get("customize_step"):
             await clone_bot.handle_customization_message(update, context)
@@ -991,33 +841,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(recommendation, reply_markup=keyboard_gen.main_menu())
             context.user_data.pop("awaiting_preference", None)
             await flow_state.clear(context, user_id, _clone_id(context))
-            return
-
-        # Check for AI summary title awaiting
-        if context.user_data.get("awaiting_summary_title"):
-            from groq_service import groq_service
-            from anime_service import anime_service
-            
-            lang = await db.get_user_language(update.effective_user.id, clone_id=_clone_id(context))
-            search_results = await anime_service.search_anime(text)
-            if search_results:
-                anime_desc = search_results[0].get("synopsis", "")
-                summary = await groq_service.get_anime_summary(text, anime_desc, language=lang)
-                await update.message.reply_text(summary, reply_markup=keyboard_gen.main_menu())
-            else:
-                await update.message.reply_text("Couldn't find that anime to summarize.", reply_markup=keyboard_gen.main_menu())
-            context.user_data.pop("awaiting_summary_title", None)
-            await flow_state.clear(context, user_id, _clone_id(context))
-            return
-
-        # Check for BotStore submission
-        if context.user_data.get("botstore_mode") == "submit_type":
-            await botstore_handler.handle_botstore_message(update, context)
-            return
-
-        # Check for BotStore search
-        if context.user_data.get("botstore_mode") == "search":
-            await botstore_handler.handle_botstore_message(update, context)
             return
 
         # Check for crypto alert setup
@@ -1147,15 +970,6 @@ async def handle_media_message(update: Update, context: ContextTypes.DEFAULT_TYP
             await broadcast_handler.handle_broadcast_content(update, context)
         elif mode == "broadcast_await_joinlink":
             await update.message.reply_text("Send the invite link as text (or /skip) — not a photo/video/file.")
-        elif update.message.photo:
-            if update.effective_chat.type != "private":
-                # Never auto-run reverse image search on photos posted in
-                # groups/channels — only when a user sends a photo directly
-                # to the bot. Doing this unprompted in a group silently
-                # reverse-searches other people's posts, which is a privacy
-                # problem regardless of intent.
-                return
-            await image_search_handler.handle_photo_message(update, context)
     except Exception as e:
         print(f"[v0] Error in handle_media_message: {e}")
         notify_admin_of_error(f"Media handler error: {e}")
@@ -1218,8 +1032,7 @@ async def show_clone_about(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"• **🧰 Tools** — an AI chat assistant, AI image generation, crypto and stock price "
         f"lookups, currency conversion, news lookups by topic, and a link-based video/audio "
         f"downloader.\n"
-        f"• **🏪 BotStore** — browse other bots, groups, and channels listed inside this network.\n"
-        f"• **⭐ Premium** — paid tiers that unlock extra usage limits and features for you as an "
+              f"• **⭐ Premium** — paid tiers that unlock extra usage limits and features for you as an "
         f"individual user of this bot.\n"
     )
 
@@ -1269,8 +1082,8 @@ async def show_all_commands(update: Update, context: ContextTypes.DEFAULT_TYPE):
     typing "menu"/"commands".
     """
     text = (
-        "☰ **All Commands**\n\n"
-        "**🎬 Anime**\n/start · /botstore · /premium · /leaderboard\n\n"
+  "☰ **All Commands**\n\n"
+
         "**🛡️ Group** (admin, in-group)\n/warn /ban /mute /kick /filter /modsettings /rules /groupstats\n\n"
         "**🧰 Tools**\n/ai /aiimage /crypto /stock /convert /news /download\n\n"
         "**⚙️ Account**\n/subscribe /stats /alerts /referrals /cancel"
@@ -1287,8 +1100,7 @@ async def show_all_commands(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # button" Telegram provides; set_my_commands populates it).
 PRIVATE_CHAT_COMMANDS = [
     ("start", "Open the main menu"),
-    ("botstore", "Browse the bot/group/channel store"),
-    ("premium", "View premium tiers"),
+      ("premium", "View premium tiers"),
     ("ai", "Chat with AI"),
     ("crypto", "Crypto price lookup"),
     ("stock", "Stock price lookup"),
@@ -1413,8 +1225,7 @@ def get_application() -> Application:
         _app.add_handler(CommandHandler("subscribe", subscription.handle_subscribe_ai))
         _app.add_handler(CommandHandler("ai_recommend", subscription.handle_ai_recommendation))
         _app.add_handler(CommandHandler("ai_summary", subscription.handle_ai_summary))
-        # BotStore commands
-        _app.add_handler(CommandHandler("botstore", botstore_handler.show_botstore_home))
+
         # SuperBot commands
         _app.add_handler(CommandHandler("premium", superbot_handler.show_premium_tiers))
         _app.add_handler(CommandHandler("referrals", superbot_handler.show_referral_stats))
@@ -1433,7 +1244,6 @@ def get_application() -> Application:
         _app.add_handler(CommandHandler("news", external_handler.news_command))
         _app.add_handler(CommandHandler("convert", external_handler.convert_command))
         _app.add_handler(CommandHandler("stock", external_handler.stock_command))
-        _app.add_handler(CommandHandler("download", external_handler.download_command))
         _app.add_handler(CommandHandler("crypto", external_handler.crypto_command))
         
         # AI Features (Items 1-2 from backlog - AI Chat & Image Generation)
@@ -1562,7 +1372,6 @@ def _register_shared_handlers(app: Application):
     app.add_handler(CommandHandler("subscribe", subscription.handle_subscribe_ai))
     app.add_handler(CommandHandler("ai_recommend", subscription.handle_ai_recommendation))
     app.add_handler(CommandHandler("ai_summary", subscription.handle_ai_summary))
-    app.add_handler(CommandHandler("botstore", botstore_handler.show_botstore_home))
     app.add_handler(CommandHandler("premium", superbot_handler.show_premium_tiers))
     app.add_handler(CommandHandler("referrals", superbot_handler.show_referral_stats))
     app.add_handler(CommandHandler("leaderboard", superbot_handler.show_leaderboard))
@@ -1571,7 +1380,6 @@ def _register_shared_handlers(app: Application):
     app.add_handler(CommandHandler("news", external_handler.news_command))
     app.add_handler(CommandHandler("convert", external_handler.convert_command))
     app.add_handler(CommandHandler("stock", external_handler.stock_command))
-    app.add_handler(CommandHandler("download", external_handler.download_command))
     app.add_handler(CommandHandler("crypto", external_handler.crypto_command))
     app.add_handler(CommandHandler("ai", ai_handler.ai_chat_handler))
     app.add_handler(CommandHandler("aichat", ai_handler.ai_chat_handler))
