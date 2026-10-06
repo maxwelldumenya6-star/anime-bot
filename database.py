@@ -2399,27 +2399,6 @@ class Database:
             """, payment_reference)
             return result == "UPDATE 1"
 
-    async def claim_selar_sale(self, sale_id: str, user_id: int, sale: dict, entitlement: str) -> str:
-        """Atomically claim a Selar sale; duplicate deliveries are harmless."""
-        pool = await get_pool()
-        async with pool.acquire() as conn:
-            await conn.execute("""
-                CREATE TABLE IF NOT EXISTS selar_sales (
-                    sale_id TEXT PRIMARY KEY,
-                    user_id BIGINT NOT NULL,
-                    entitlement TEXT NOT NULL,
-                    payload JSONB NOT NULL,
-                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-                )
-            """)
-            inserted = await conn.fetchval("""
-                INSERT INTO selar_sales (sale_id, user_id, entitlement, payload)
-                VALUES ($1, $2, $3, $4::jsonb)
-                ON CONFLICT (sale_id) DO NOTHING
-                RETURNING sale_id
-            """, sale_id, user_id, entitlement, json.dumps(sale.get("raw", {}), default=str))
-            return "claimed" if inserted else "duplicate"
-
     async def mark_clone_payment_paid(self, payment_reference: str) -> bool:
         """Approve a manually reviewed clone payment exactly once."""
         pool = await get_pool()
