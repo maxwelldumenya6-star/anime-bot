@@ -175,7 +175,7 @@ async def handle_free_unlock(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 
 async def handle_pay_unlock(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Callback for the 'Unlock Source Links — GHS 10' button. Initializes Selar payment."""
+    """Callback for the 'Unlock Source Links — GHS 10' button. Initializes Paystack payment."""
     query = update.callback_query
     user_id = update.effective_user.id
     email = f"user_{user_id}@animebot.com"
@@ -205,7 +205,7 @@ async def handle_pay_unlock(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("✅ Verify Payment", callback_data="imgsearch_verify")]
         ])
         await safe_edit_message(query, 
-            f"💳 **Unlock Source Links**\n\nPay GHS {price:g}.00 via Selar, "
+            f"💳 **Unlock Source Links**\n\nPay GHS {price:g}.00 via Paystack, "
             f"then tap **Verify Payment**.",
             reply_markup=keyboard,
             parse_mode="Markdown"
@@ -274,7 +274,7 @@ async def handle_yandex_subscribe(update: Update, context: ContextTypes.DEFAULT_
         ])
         await safe_edit_message(query,
             f"💳 **Yandex Direct Search — GHS {IMAGE_SEARCH_YANDEX_FEE_GHS}/month**\n\n"
-            f"Pay via Selar, then tap **Verify Payment**. This unlocks a direct "
+            f"Pay via Paystack, then tap **Verify Payment**. This unlocks a direct "
             f"'Open in Yandex' link on every image you send for {IMAGE_SEARCH_YANDEX_DAYS} days.",
             reply_markup=keyboard,
             parse_mode="Markdown"

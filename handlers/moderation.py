@@ -534,7 +534,7 @@ async def gate_toggle_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     await update.message.reply_text(f"✅ Join gate {'enabled' if enabled else 'disabled'}.")
 
 
-# ═══════════════════════════════════════════════════════════════════════════
+# ══════════════════════��════════════════════════════════════════════════════
 # MOD SETTINGS (captcha / anti-raid / etc.)
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -1064,7 +1064,7 @@ async def setpaybutton_command(update: Update, context: ContextTypes.DEFAULT_TYP
     """/setpaybutton <Label> | <amount in GHS> — admin attaches a generic
     Pay Now-style button to this group's welcome message. What the payment
     is FOR is entirely up to the admin's label (paid access, membership,
-    a fundraiser, anything) — the bot just collects it via Selar."""
+    a fundraiser, anything) — the bot just collects it via Paystack."""
     if not await _require_admin(update, context):
         return
     raw = update.message.text.partition(" ")[2].strip()

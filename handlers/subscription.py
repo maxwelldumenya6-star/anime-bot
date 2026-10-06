@@ -216,14 +216,14 @@ async def get_subscription_revenue() -> Dict:
 
 
 async def handle_pay_paystack_ai(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle Selar payment for AI subscription"""
+    """Handle Paystack payment for AI subscription"""
     query = update.callback_query
     user_id = update.effective_user.id
     email = f"user_{user_id}@animebot.com"
     clone_id = _clone_id(context)
     price = await db.get_clone_price(clone_id, "ai_subscription")
 
-    # Initialize Selar payment
+    # Initialize Paystack payment
     payment_result = paystack.initialize_payment(
         email,
         int(price * 100),  # Convert GHS to pesewas
@@ -245,7 +245,7 @@ async def handle_pay_paystack_ai(update: Update, context: ContextTypes.DEFAULT_T
         payment_text = f"""
 {EMOJI_COLORS.get('success', '✅')} **AI Subscription Payment**
 
-Click the link below to pay GHS {price:g}.00 via Selar:
+Click the link below to pay GHS {price:g}.00 via Paystack:
 
 [Pay Now]({payment_link})
 

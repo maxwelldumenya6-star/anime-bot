@@ -120,7 +120,7 @@ async def upgrade_tier(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await safe_edit_message(query, 
         f"{EMOJI_COLORS.get('success', '✅')} **Payment Ready**\n\n"
-        f"Click below to pay GHS {config['price']}.00 for **{config['name']}** via Selar:\n\n"
+        f"Click below to pay GHS {config['price']}.00 for **{config['name']}** via Paystack:\n\n"
         f"[Pay Now]({payment_result.get('authorization_url')})\n\n"
         f"Once you've paid, tap \"I've Paid\" to activate your tier!",
         reply_markup=InlineKeyboardMarkup(keyboard),

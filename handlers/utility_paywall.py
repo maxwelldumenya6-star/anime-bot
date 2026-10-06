@@ -119,7 +119,7 @@ async def send_paywall_message(update: Update, context: ContextTypes.DEFAULT_TYP
         f"You've used your {UTILITY_FREE_USES} free uses for {label}.\n\n"
         f"Subscribe for {price:g} GHS / 2 months to unlock **both** "
         f"AI Chat and Download, unlimited, for the whole period.\n\n"
-        f"Tap below to pay with Selar."
+        f"Tap below to pay with Paystack."
     )
     query = update.callback_query
     if query:
@@ -157,7 +157,7 @@ async def handle_payment_initiation(update: Update, context: ContextTypes.DEFAUL
 
         text = (
             f"{EMOJI_COLORS['success']} **Payment Ready**\n\n"
-            f"Click the link below to pay GHS {price:g}.00 via Selar:\n\n"
+            f"Click the link below to pay GHS {price:g}.00 via Paystack:\n\n"
             f"[Pay Now]({payment_link})\n\n"
             f"After payment, return here and tap \"Verify Payment\"."
         )

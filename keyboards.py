@@ -500,8 +500,7 @@ class KeyboardGenerator:
 
         keyboard = [
             [InlineKeyboardButton(label("🏦 Use Main Bot (default)", "main"), callback_data=f"clone_paysetprovider_main_{clone_id}")],
-            [InlineKeyboardButton(label("📲 Connect Selar", "selar"), callback_data=f"clone_paysetprovider_selar_{clone_id}")],
-            [InlineKeyboardButton(label("💳 Connect Stripe", "stripe"), callback_data=f"clone_paysetprovider_stripe_{clone_id}")],
+            [InlineKeyboardButton(label("💳 Connect Paystack", "paystack"), callback_data=f"clone_paysetprovider_paystack_{clone_id}")],
             [InlineKeyboardButton("⬅️ Back", callback_data=f"clone_monetization_{clone_id}")]
         ]
         return InlineKeyboardMarkup(keyboard)

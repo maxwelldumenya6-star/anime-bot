@@ -370,7 +370,7 @@ async def cmd_confirmpay(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if result.get("status") != "success":
         await update.message.reply_text(
-            f"⚠️ Selar does not confirm this reference as a successful payment.\n"
+            f"⚠️ Paystack does not confirm this reference as a successful payment.\n"
             f"Status: {result.get('status')}\n\n"
             f"If you're certain it was paid (manual/offline), use /setpremium directly instead."
         )

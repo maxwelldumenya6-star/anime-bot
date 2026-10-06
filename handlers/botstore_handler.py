@@ -357,7 +357,7 @@ async def handle_go_premium(update: Update, context: ContextTypes.DEFAULT_TYPE):
         payment_text = f"""
 {EMOJI_COLORS.get('success', '✅')} **BotStore Premium**
 
-Click the link below to pay GHS {price_ghs}.00 via Selar:
+Click the link below to pay GHS {price_ghs}.00 via Paystack:
 
 [Pay Now]({payment_link})
 

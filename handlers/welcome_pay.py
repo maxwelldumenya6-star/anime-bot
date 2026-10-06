@@ -75,7 +75,7 @@ async def handle_payment_initiation(update: Update, context: ContextTypes.DEFAUL
             text=(
                 f"{EMOJI_COLORS['success']} **{label} — Payment Ready**\n\n"
                 f"Amount: GHS {amount_ghs}.00\n\n"
-                f"Tap below to pay via Selar, then come back and tap "
+                f"Tap below to pay via Paystack, then come back and tap "
                 f"\"I've Paid — Verify\"."
             ),
             reply_markup=keyboard,

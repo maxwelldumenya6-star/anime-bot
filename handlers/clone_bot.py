@@ -506,7 +506,7 @@ async def handle_payment_initiation(update: Update, context: ContextTypes.DEFAUL
             payment_text = f"""
 {EMOJI_COLORS['success']} **Payment Ready**
 
-Click the link below to pay GHS {CLONE_BOT_FEE_GHS}.00 via Selar:
+Click the link below to pay GHS {CLONE_BOT_FEE_GHS}.00 via Paystack:
 
 [Pay Now]({payment_link})
 

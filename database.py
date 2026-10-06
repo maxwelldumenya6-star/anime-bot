@@ -341,12 +341,14 @@ class Database:
                 amount REAL NOT NULL,
                 status TEXT DEFAULT 'pending',
                 selar_sale_id TEXT UNIQUE,
-                payment_method TEXT DEFAULT 'selar',
+                paystack_reference TEXT UNIQUE,
+                payment_method TEXT DEFAULT 'paystack',
                 created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
         await conn.execute("ALTER TABLE payment_logs ADD COLUMN IF NOT EXISTS selar_sale_id TEXT")
-        await conn.execute("ALTER TABLE payment_logs ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'selar'")
+        await conn.execute("ALTER TABLE payment_logs ADD COLUMN IF NOT EXISTS paystack_reference TEXT")
+        await conn.execute("ALTER TABLE payment_logs ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'paystack'")
         await conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_logs_selar_sale_id ON payment_logs(selar_sale_id) WHERE selar_sale_id IS NOT NULL")
 
 
@@ -1786,16 +1788,16 @@ class Database:
             )
             return [dict(r) for r in rows]
 
-    async def claim_selar_sale(self, sale_id: str, user_id: int, sale: dict, entitlement: str) -> str:
-        """Atomically record a Selar sale before granting access."""
+    async def claim_paystack_transaction(self, transaction_id: str, user_id: int, transaction: dict, entitlement: str) -> str:
+        """Atomically record a verified Paystack transaction before fulfillment."""
         pool = await get_pool()
         async with pool.acquire() as conn:
             row = await conn.fetchrow(
-                """INSERT INTO payment_logs (user_id, amount, status, selar_sale_id, payment_method)
-                   VALUES ($1, $2, 'completed', $3, 'selar')
-                   ON CONFLICT (selar_sale_id) DO NOTHING
+                """INSERT INTO payment_logs (user_id, amount, status, paystack_reference, payment_method)
+                   VALUES ($1, $2, 'completed', $3, 'paystack')
+                   ON CONFLICT (paystack_reference) DO NOTHING
                    RETURNING payment_id""",
-                user_id, float(sale.get("amount") or 0), sale_id,
+                user_id, float(transaction.get("amount") or 0) / 100, transaction_id,
             )
             return "processed" if row else "duplicate"
 
@@ -1811,8 +1813,8 @@ class Database:
         pool = await get_pool()
         async with pool.acquire() as conn:
             await conn.execute(
-                "INSERT INTO payment_logs (user_id, amount, status, selar_reference) "
-                "VALUES ($1, $2, $3, $4) ON CONFLICT (selar_reference) DO NOTHING",
+                "INSERT INTO payment_logs (user_id, amount, status, paystack_reference, payment_method) "
+                "VALUES ($1, $2, $3, $4, 'paystack') ON CONFLICT (paystack_reference) DO NOTHING",
                 user_id, amount, status, reference
             )
 
@@ -1820,7 +1822,7 @@ class Database:
         pool = await get_pool()
         async with pool.acquire() as conn:
             await conn.execute(
-                "UPDATE payment_logs SET status = 'completed' WHERE selar_reference = $1",
+                "UPDATE payment_logs SET status = 'completed' WHERE paystack_reference = $1",
                 reference
             )
 

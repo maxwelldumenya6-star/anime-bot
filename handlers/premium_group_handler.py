@@ -101,7 +101,7 @@ async def handle_premium_pay_init(update: Update, context: ContextTypes.DEFAULT_
                 text=(
                     f"{EMOJI_COLORS.get('success', '✅')} **Premium Group — Payment Ready**\n\n"
                     f"Amount: GHS {price:g}.00\n\n"
-                    f"Tap below to pay via Selar, then come back and tap "
+                    f"Tap below to pay via Paystack, then come back and tap "
                     f"\"I've Paid — Verify\" to get your invite link."
                 ),
                 reply_markup=keyboard,

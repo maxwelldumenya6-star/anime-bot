@@ -26,10 +26,12 @@ class handler(BaseHTTPRequestHandler):
             return self._respond(401, {"status": "error", "message": "Unauthorized"})
 
         sale = normalize_transaction(payload)
+        if payload.get("event") not in (None, "charge.success") or sale.get("status") not in (None, "success"):
+            return self._respond(200, {"status": "ignored"})
         if not sale["sale_id"]:
             sale["sale_id"] = "payload-" + hashlib.sha256(raw).hexdigest()
         mapping = {"type": sale.get("metadata", {}).get("payment_type", "bot_clone")}
-        if mapping["type"] not in {"bot_clone", "ai_subscription", "utility_subscription", "image_search_unlock", "premium_group", "clone_monetization"}:
+        if mapping["type"] not in {"bot_clone", "ai_subscription", "utility_subscription", "image_search_unlock", "image_search_yandex", "yandex_subscription", "premium_group", "clone_monetization"}:
             return self._respond(422, {"status": "error", "message": "Unsupported Paystack payment type"})
         try:
             user_id = int(str(sale["telegram_user_id"]).strip())
@@ -38,7 +40,7 @@ class handler(BaseHTTPRequestHandler):
         except (TypeError, ValueError):
             return self._respond(422, {"status": "error", "message": "Telegram User ID is required"})
         try:
-            result = asyncio.run(db.claim_selar_sale(sale["sale_id"], user_id, sale, mapping["type"]))
+            result = asyncio.run(db.claim_paystack_transaction(sale.get("reference") or sale["sale_id"], user_id, sale, mapping["type"]))
             if result == "duplicate":
                 return self._respond(200, {"status": "already_processed"})
             asyncio.run(self._grant(user_id, sale, mapping["type"]))
@@ -57,6 +59,9 @@ class handler(BaseHTTPRequestHandler):
             await db.activate_utility_subscription(user_id, days=UTILITY_SUB_DAYS, clone_id=clone_id)
         elif entitlement == "image_search_unlock":
             await db.mark_image_search_paid(user_id, clone_id=clone_id)
+        elif entitlement in {"image_search_yandex", "yandex_subscription"}:
+            from config import IMAGE_SEARCH_YANDEX_DAYS
+            await db.activate_image_search_yandex_subscription(user_id, clone_id, IMAGE_SEARCH_YANDEX_DAYS)
         elif entitlement == "premium_group":
             await db.set_premium_tier(user_id, clone_id=clone_id)
         elif entitlement == "clone_monetization" and clone_id:
