@@ -6,21 +6,11 @@ class KeyboardGenerator:
 
     @staticmethod
     def persistent_menu(clone_mode: bool = False) -> ReplyKeyboardMarkup:
-        """Persistent bottom keyboard - always visible. Kept short and balanced
-        across the bot's three areas (anime / group tools / utilities) instead
-        of anime-only, plus a one-tap shortcut to the full command list."""
-        if clone_mode:
-            keyboard = [
-                [KeyboardButton(f"{EMOJI_COLORS['search']} Search"), KeyboardButton("🧰 Tools")],
-                [KeyboardButton("🛡️ Group Tools"), KeyboardButton("💎 Premium")],
-                [KeyboardButton("☰ All Commands"), KeyboardButton("🏠 Menu")],
-            ]
-        else:
-            keyboard = [
-                [KeyboardButton(f"{EMOJI_COLORS['search']} Search"), KeyboardButton("🧰 Tools")],
-                [KeyboardButton("🛡️ Group Tools"), KeyboardButton("💎 Premium")],
-                [KeyboardButton("☰ All Commands"), KeyboardButton("🏠 Menu")],
-            ]
+        """Persistent bottom keyboard for navigation and account controls."""
+        keyboard = [
+            [KeyboardButton("🛡️ Group Tools"), KeyboardButton("💎 Premium")],
+            [KeyboardButton("☰ All Commands"), KeyboardButton("🏠 Menu")],
+        ]
         return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
 
     @staticmethod

@@ -7,7 +7,7 @@ from collections import OrderedDict
 from urllib.parse import urlparse, parse_qs
 from http.server import BaseHTTPRequestHandler
 import requests
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.error import BadRequest
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 from init_system import initialize_system
@@ -152,6 +152,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     main_menu_keyboard = InlineKeyboardMarkup(
         list(main_menu_keyboard.inline_keyboard) + [[premium_group_handler.premium_group_button()]]
     )
+
+    # Telegram keeps previously sent reply keyboards visible until the bot
+    # explicitly removes them. Clear older anime/download/store keyboards when
+    # the user starts the bot again, then show the current inline menu.
+    await update.message.reply_text("\u2063", reply_markup=ReplyKeyboardRemove())
 
     await safe_send_message(
         update.message,
